@@ -2,6 +2,10 @@
 
 A lightweight **upload → processing → review** photo workflow application.
 
+## Demo
+
+📹 [Watch the demo video](https://www.loom.com/share/a3cf0c57c6cc4f80b57f3f44780a77ec)
+
 ## Tech Stack
 
 | Component           | Technology                                                                       |
