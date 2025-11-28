@@ -1,135 +1,198 @@
-# Turborepo starter
+# RapidPhotoFlow
 
-This Turborepo starter is maintained by the Turborepo core team.
+A lightweight **upload → processing → review** photo workflow application.
 
-## Using this example
+## Tech Stack
 
-Run the following command:
+| Component           | Technology                                                                       |
+| ------------------- | -------------------------------------------------------------------------------- |
+| **Monorepo**        | [Turborepo](https://turborepo.com/)                                              |
+| **Backend**         | [AdonisJS v6](https://docs.adonisjs.com/) (TypeScript)                           |
+| **Frontend**        | [Next.js 16](https://nextjs.org/) (App Router, TypeScript)                       |
+| **Database**        | PostgreSQL 16                                                                    |
+| **Cache & Queue**   | Redis 7 via [@rlanz/bull-queue](https://github.com/RomainLanz/adonis-bull-queue) |
+| **Package Manager** | Bun                                                                              |
 
-```sh
-npx create-turbo@latest
-```
-
-## What's inside?
-
-This Turborepo includes the following packages/apps:
-
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
+## Project Structure
 
 ```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
+RapidPhotoFlow/
+├── apps/
+│   ├── backend/         # AdonisJS v6 API
+│   │   ├── app/
+│   │   │   ├── controllers/
+│   │   │   ├── models/
+│   │   │   └── services/
+│   │   ├── commands/    # Optional: separate worker command
+│   │   ├── config/
+│   │   ├── start/
+│   │   └── database/migrations/
+│   └── frontend/        # Next.js 16 App
+│       └── src/
+│           ├── app/     # Pages
+│           ├── components/
+│           └── lib/     # API client
+├── packages/
+│   └── shared/          # Shared types & constants
+├── docker-compose.yml
+└── turbo.json
 ```
 
-You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+## Quick Start
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
+### Prerequisites
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
+- [Bun](https://bun.sh/) >= 1.0
+- [Docker](https://www.docker.com/) & Docker Compose
 
-### Develop
+### Option 1: Full Docker Stack
 
-To develop all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
+```bash
+docker-compose up --build
 ```
 
-You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+**URLs:**
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:3333
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
+### Option 2: Local Development
 
-### Remote Caching
+1. **Start infrastructure:**
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
+```bash
+docker-compose -f docker-compose.dev.yml up -d
 ```
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+2. **Install dependencies:**
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
+```bash
+bun install
 ```
 
-## Useful Links
+3. **Build shared package:**
 
-Learn more about the power of Turborepo:
+```bash
+cd packages/shared && bun run build && cd ../..
+```
 
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
+4. **Setup environment files:**
+
+```bash
+# Backend - copy and edit
+cp apps/backend/.env.example apps/backend/.env
+
+# Frontend - copy and edit
+echo "NEXT_PUBLIC_API_URL=http://localhost:3333" > apps/frontend/.env.local
+```
+
+5. **Run migrations:**
+
+```bash
+bun run db:migrate
+```
+
+6. **Start development servers:**
+
+```bash
+# Terminal 1 - Backend
+bun run dev:backend
+
+# Terminal 2 - Frontend
+bun run dev:frontend
+
+# Terminal 3 - Worker
+bun run dev:worker
+```
+
+## API Endpoints
+
+### Photos
+
+| Method  | Endpoint             | Description                                   |
+| ------- | -------------------- | --------------------------------------------- |
+| `POST`  | `/photos`            | Upload photos (multipart, field: `files`)     |
+| `GET`   | `/photos`            | List photos (`?status=`, `?page=`, `?limit=`) |
+| `GET`   | `/photos/:id`        | Get photo with events                         |
+| `PATCH` | `/photos/:id/status` | Update status (internal)                      |
+| `GET`   | `/photos/:id/file`   | Serve photo file                              |
+
+### Events
+
+| Method | Endpoint  | Description                                    |
+| ------ | --------- | ---------------------------------------------- |
+| `GET`  | `/events` | List events (`?photoId=`, `?page=`, `?limit=`) |
+
+### Health
+
+| Method | Endpoint  | Description  |
+| ------ | --------- | ------------ |
+| `GET`  | `/health` | Health check |
+
+## Workflow
+
+```
+UPLOADED → QUEUED → PROCESSING → COMPLETED (90%)
+                              → FAILED (10%)
+```
+
+## Scripts
+
+| Command            | Description                 |
+| ------------------ | --------------------------- |
+| `bun dev`          | Run all apps in parallel    |
+| `bun dev:backend`  | Run AdonisJS server         |
+| `bun dev:frontend` | Run Next.js server          |
+| `bun dev:worker`   | Run queue worker separately |
+| `bun build`        | Build all apps              |
+| `bun db:migrate`   | Run migrations              |
+| `bun docker:up`    | Start Docker stack          |
+| `bun docker:dev`   | Start infrastructure only   |
+
+## Environment Variables
+
+### Backend
+
+```env
+NODE_ENV=development
+PORT=3333
+HOST=0.0.0.0
+LOG_LEVEL=info
+APP_KEY=your-32-character-secret-key
+
+# Database
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=postgres
+DB_PASSWORD=postgres
+DB_DATABASE=rapidphotoflow
+
+# Redis (also used for Bull queue)
+REDIS_HOST=localhost
+REDIS_PORT=6379
+```
+
+### Frontend
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:3333
+```
+
+## Queue Processing
+
+Job queues are powered by [@rlanz/bull-queue](https://github.com/RomainLanz/adonis-bull-queue), which uses Redis as the backing store.
+
+- **Development**: Run `bun run dev:worker` to process jobs
+- **Production**: Docker Compose includes a separate worker service for scaling
+
+## Created With
+
+This project was initialized using:
+
+- **Turborepo**: `bunx create-turbo@latest`
+- **AdonisJS**: `bunx create-adonisjs@latest -K=api --db=postgres`
+- **Next.js**: `bunx create-next-app@latest --typescript --tailwind --app --src-dir`
+
+## License
+
+MIT

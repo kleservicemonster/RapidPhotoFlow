@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+@theme {
+  --color-coral-50: #fff5f5;
+  --color-coral-100: #ffe4e4;
+  --color-coral-200: #fecaca;
+  --color-coral-300: #fca5a5;
+  --color-coral-400: #ff7b72;
+  --color-coral-500: #ff6b6b;
+  --color-coral-600: #ef4444;
+  --color-coral-700: #dc2626;
+  --color-coral-800: #b91c1c;
+  --color-coral-900: #991b1b;
+}
+
+@layer base {
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  body {
+    @apply bg-slate-950 text-slate-100 antialiased;
+    background-image: radial-gradient(ellipse at top, rgba(30, 41, 59, 0.5) 0%, transparent 50%),
+                      radial-gradient(ellipse at bottom right, rgba(255, 107, 107, 0.05) 0%, transparent 50%);
+    background-attachment: fixed;
+  }
+}
+
+@layer utilities {
+  .animate-fadeIn {
+    animation: fadeIn 0.4s ease-out forwards;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

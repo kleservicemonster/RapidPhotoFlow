@@ -1,0 +1,130 @@
+# RapidPhotoFlow - Full Stack Docker Compose
+# Start: docker-compose up --build
+# Stop: docker-compose down
+
+services:
+  db:
+    image: postgres:16
+    container_name: rpf_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: rapidphotoflow
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - rpf_network
+
+  redis:
+    image: redis:7
+    container_name: rpf_redis
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - rpf_network
+
+  backend:
+    build:
+      context: .
+      dockerfile: apps/backend/Dockerfile
+    container_name: rpf_backend
+    environment:
+      NODE_ENV: production
+      PORT: 3333
+      HOST: 0.0.0.0
+      LOG_LEVEL: info
+      APP_KEY: ${APP_KEY:-super-secret-key-change-in-production-32chars}
+      APP_NAME: RapidPhotoFlow
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_DATABASE: rapidphotoflow
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    volumes:
+      - photo_uploads:/app/apps/backend/storage/uploads
+    ports:
+      - "3333:3333"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - rpf_network
+    restart: unless-stopped
+
+  worker:
+    build:
+      context: .
+      dockerfile: apps/backend/Dockerfile
+    container_name: rpf_worker
+    command: ["node", "build/bin/server.js", "queue:listen"]
+    environment:
+      NODE_ENV: production
+      PORT: 3334
+      HOST: 0.0.0.0
+      LOG_LEVEL: info
+      APP_KEY: ${APP_KEY:-super-secret-key-change-in-production-32chars}
+      APP_NAME: RapidPhotoFlow-Worker
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_DATABASE: rapidphotoflow
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    volumes:
+      - photo_uploads:/app/apps/backend/storage/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      backend:
+        condition: service_started
+    networks:
+      - rpf_network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: apps/frontend/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:3333
+    container_name: rpf_frontend
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:3333
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - rpf_network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+  photo_uploads:
+
+networks:
+  rpf_network:
+    driver: bridge
